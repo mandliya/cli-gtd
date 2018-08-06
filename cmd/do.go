@@ -1,0 +1,54 @@
+// Copyright © 2018 Ravi Mandliya <ravi.mandliya@gmail.com>
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package cmd
+
+import (
+	"fmt"
+	"strconv"
+
+	"github.com/GTD/db"
+
+	"github.com/spf13/cobra"
+)
+
+// doCmd represents the do command
+var doCmd = &cobra.Command{
+	Use:   "do",
+	Short: "marks the task as done ",
+	Run: func(cmd *cobra.Command, args []string) {
+
+		for _, arg := range args {
+			id, err := strconv.Atoi(arg)
+			if err != nil {
+				fmt.Println("Error! Failed to parse ", arg)
+			} else {
+				err = db.DeleteTask(id)
+				if err != nil {
+					fmt.Println("Error! Failed to delete task ", id)
+				} else {
+					fmt.Printf("Marked %d task as completed \n", id)
+				}
+			}
+		}
+
+		if db.IsTaskListEmpty() {
+			db.ResetTaskSequence()
+		}
+	},
+}
+
+func init() {
+	RootCmd.AddCommand(doCmd)
+}
